@@ -1,8 +1,8 @@
-import * as core from '@actions/core'
-import * as io from '@actions/io'
 import * as cache from '@actions/cache'
-import * as tool_cache from '@actions/tool-cache'
+import * as core from '@actions/core'
 import * as exec from '@actions/exec'
+import * as io from '@actions/io'
+import * as tool_cache from '@actions/tool-cache'
 import {homedir} from 'os'
 import path from 'path'
 import {promises} from 'fs'
@@ -18,7 +18,7 @@ async function installRustup(): Promise<void> {
   } catch (error) {
     core.info('rustup not exist!!!')
     const plat = process.platform
-    if (!!plat.match('/(darwin|linux)/')) {
+    if (plat.match('/(darwin|linux)/')) {
       core.info(`starting install rustup in ${plat}`)
       const rustupSh = await tool_cache.downloadTool(RUST_INSTALL_UNIX_URL)
       await promises.chmod(rustupSh, 0o755)
@@ -40,7 +40,7 @@ function buildArgs(
   components: string,
   targets: string
 ): string[] {
-  let args = [
+  const args = [
     'toolchain',
     'install',
     channel,
@@ -48,17 +48,17 @@ function buildArgs(
     'minimal',
     '--allow-downgrade'
   ]
-  if (!!components) {
-    components.split(' ').forEach(v => {
+  if (components) {
+    for (const v of components.split(' ')) {
       args.push('--component')
       args.push(v)
-    })
+    }
   }
-  if (!!targets) {
-    targets.split(' ').forEach(v => {
+  if (targets) {
+    for (const v of targets.split(' ')) {
       args.push('--target')
       args.push(v)
-    })
+    }
   }
   return args
 }
@@ -73,8 +73,8 @@ async function run(): Promise<void> {
     const targets: string = core.getInput('targets')
 
     const cacheKey = `rust-${plat}-${channel}${
-      !!components ? '-' : ''
-    }${components.replace(' ', '-')}${!!targets ? '-' : ''}${targets.replace(
+      components ? '-' : ''
+    }${components.replace(' ', '-')}${targets ? '-' : ''}${targets.replace(
       ' ',
       ';;'
     )}`
